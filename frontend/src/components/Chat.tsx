@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Input } from "../components/Input";
-import { Button } from "../components/Button";
+import { Input } from "./ui/Input";
+import { Button } from "./ui/Button";
 import { MessageSquare, Maximize2, Minimize2 } from 'lucide-react';
 
 interface ChatProps {

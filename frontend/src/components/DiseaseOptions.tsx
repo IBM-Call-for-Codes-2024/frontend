@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Button } from "./Button";
+import { Button } from "./ui/Button";
 import { Stethoscope, Eye } from 'lucide-react';
 
 interface DiseaseOptionsProps {

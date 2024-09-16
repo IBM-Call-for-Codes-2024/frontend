@@ -1,22 +1,26 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff } from 'lucide-react'
-import { Button } from "../Button"
-import { Input } from "../Input"
-import { Label } from "../Label"
+import { Button } from "../ui/Button"
+import { Input } from "../ui/Input"
+import { Label } from "../ui/Label"
 
 interface LoginProps {
   onClose: () => void
   onSwitchToSignup: () => void
+  onLogin: () => void
 }
 
-export default function Login({ onClose, onSwitchToSignup }: LoginProps) {
+export default function Login({ onClose, onSwitchToSignup, onLogin }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log('Login form submitted')
+    // Here you would typically validate the input and make an API call
+    console.log('Login form submitted with:', { email, password })
+    onLogin()
   }
 
   return (
@@ -31,7 +35,14 @@ export default function Login({ onClose, onSwitchToSignup }: LoginProps) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="Enter your email" required />
+          <Input 
+            id="email" 
+            type="email" 
+            placeholder="Enter your email" 
+            required 
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
@@ -41,6 +52,8 @@ export default function Login({ onClose, onSwitchToSignup }: LoginProps) {
               type={showPassword ? 'text' : 'password'}
               placeholder="Enter your password"
               required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
             />
             <button
               type="button"

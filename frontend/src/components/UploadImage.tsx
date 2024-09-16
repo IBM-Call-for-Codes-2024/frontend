@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Upload } from 'lucide-react';
-import { Input } from "../components/Input";
+import { Input } from "./ui/Input";
 
 interface UploadImageProps {
   imageType: 'rash' | 'eye' | null;

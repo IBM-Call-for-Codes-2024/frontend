@@ -1,17 +1,19 @@
 import { useState } from 'react';
-import { Button } from "../components/Button";
+import { useNavigate } from 'react-router-dom';
+import { Button } from "../components/ui/Button";
 import DiseaseOptions from "../components/DiseaseOptions";
 import UploadImage from "../components/UploadImage";
 import Chat from "../components/Chat";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../components/DropdownMenu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../components/ui/DropdownMenu";
 import { User, ChevronLeft, X } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
-import FeatureGrid from '../components/FeatureGrid';
+import FeatureGrid from '../components/ui/FeatureGrid';
 import Login from '../components/Auth/Login';
 import Signup from '../components/Auth/Signup';
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
 export default function MainPage() {
+  const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [imageType, setImageType] = useState<'rash' | 'eye' | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{ text: string; isAI: boolean }>>([]);
@@ -72,6 +74,12 @@ export default function MainPage() {
 
   const switchAuthMode = () => {
     setAuthMode(prevMode => prevMode === 'login' ? 'signup' : 'login');
+  };
+
+  const handleLogin = () => {
+    // Here you would typically handle the login logic
+    // For now, we'll just redirect to the dashboard
+    navigate('/dashboard');
   };
 
   return (
@@ -174,7 +182,7 @@ export default function MainPage() {
                 <X size={24} />
               </button>
               {authMode === 'login' ? (
-                <Login onClose={closeAuthModal} onSwitchToSignup={switchAuthMode} />
+                <Login onClose={closeAuthModal} onSwitchToSignup={switchAuthMode} onLogin={handleLogin} />
               ) : (
                 <Signup onClose={closeAuthModal} onSwitchToLogin={switchAuthMode} />
               )}

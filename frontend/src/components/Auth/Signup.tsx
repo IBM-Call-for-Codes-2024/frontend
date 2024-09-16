@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff } from 'lucide-react'
-import { Button } from "../Button"
-import { Input } from "../Input"
-import { Label } from "../Label"
+import { Button } from "../ui/Button"
+import { Input } from "../ui/Input"
+import { Label } from "../ui/Label"
 
 interface SignupProps {
   onClose: () => void
