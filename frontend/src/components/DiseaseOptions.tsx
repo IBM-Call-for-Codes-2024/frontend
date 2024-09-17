@@ -4,9 +4,17 @@ import { Stethoscope, Eye } from 'lucide-react';
 
 interface DiseaseOptionsProps {
   onImageTypeSelect: (type: 'rash' | 'eye') => void;
+  // bool to indicate if we come from the user dashboard
+  fromDashboard?: boolean;
 }
 
-export default function DiseaseOptions({ onImageTypeSelect }: DiseaseOptionsProps) {
+//export default function DiseaseOptions({ onImageTypeSelect,  }: DiseaseOptionsProps) {
+export default function DiseaseOptions(props: DiseaseOptionsProps) {
+  // destructure onImageTypeSelect from props
+  // destructure fromDashboard from props
+  const { fromDashboard } = props;
+  const { onImageTypeSelect } = props;
+
   return (
     <motion.div 
       key="step0"
@@ -16,8 +24,13 @@ export default function DiseaseOptions({ onImageTypeSelect }: DiseaseOptionsProp
       transition={{ duration: 0.5 }}
       className="text-center"
     >
-      <h2 className="text-4xl font-bold mb-6 text-indigo-800">Discover Your Health's Story</h2>
-      <p className="text-xl mb-8 text-indigo-600">Select the type of image you'd like to analyze</p>
+      {/* show if we don't come from user dashboard*/}
+      {!fromDashboard && (      
+        <>
+          <h2 className="text-4xl font-bold mb-6 text-indigo-800">Discover Your Health's Story</h2>
+          <p className="text-xl mb-8 text-indigo-600">Select the type of image you'd like to analyze</p>
+          </>
+      )}
       <div className="flex justify-center space-x-8">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button

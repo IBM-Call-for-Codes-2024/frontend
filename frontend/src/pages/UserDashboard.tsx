@@ -8,6 +8,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/Avatar"
 import { ScrollArea } from "../components/ui/Scroll_Area"
 import { User, Upload, MessageSquare, BarChart2, Settings } from 'lucide-react'
+import DiseaseOptions from '../components/DiseaseOptions'
+import UploadImage from '../components/UploadImage'
+import Chat from '../components/Chat'
 
 interface ChatMessage {
   id: string
@@ -50,6 +53,10 @@ const mockChatHistory: ChatHistory[] = [
 export default function UserDashboard() {
   const [activeChat, setActiveChat] = useState<ChatHistory | null>(null)
   const [newMessage, setNewMessage] = useState('')
+  const [uploadStep, setUploadStep] = useState(0)
+  const [imageType, setImageType] = useState<'rash' | 'eye' | null>(null)
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
+  const [chatMessages, setChatMessages] = useState<Array<{ text: string; isAI: boolean }>>([])
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,6 +72,30 @@ export default function UserDashboard() {
       setNewMessage('')
       // Here you would typically send the message to your AI service and update with the response
     }
+  }
+
+  const handleImageTypeSelect = (type: 'rash' | 'eye') => {
+    setImageType(type)
+    setUploadStep(1)
+  }
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, imageUrl: string) => {
+    console.log('Image uploaded:', event.target.files?.[0])
+    setUploadedImageUrl(imageUrl)
+    setUploadStep(2)
+    setChatMessages([{ text: `I've analyzed your ${imageType} image. Let's discuss your symptoms in more detail.`, isAI: true }])
+  }
+
+  const handleChatSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const form = event.target as HTMLFormElement
+    const input = form.elements.namedItem('message') as HTMLInputElement
+    const userMessage = input.value
+    setChatMessages(prev => [...prev, { text: userMessage, isAI: false }])
+    form.reset()
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, { text: `Based on the ${imageType} image and your symptoms, it appears to be...`, isAI: true }])
+    }, 1000)
   }
 
   return (
@@ -136,20 +167,23 @@ export default function UserDashboard() {
                   <CardDescription>Upload an image for AI analysis.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-center w-full">
-                    <Label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-64 border-2 border-indigo-300 border-dashed rounded-lg cursor-pointer bg-indigo-50 hover:bg-indigo-100">
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-10 h-10 mb-3 text-indigo-500" />
-                        <p className="mb-2 text-sm text-indigo-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                        <p className="text-xs text-indigo-500">PNG, JPG or GIF (MAX. 800x400px)</p>
-                      </div>
-                      <Input id="dropzone-file" type="file" className="hidden" />
-                    </Label>
-                  </div>
+                  <AnimatePresence mode="wait">
+                    {uploadStep === 0 && (
+                      <DiseaseOptions onImageTypeSelect={handleImageTypeSelect} fromDashboard={true} />
+                    )}
+                    {uploadStep === 1 && (
+                      <UploadImage imageType={imageType} onImageUpload={handleImageUpload} />
+                    )}
+                    {uploadStep === 2 && (
+                      <Chat
+                        chatMessages={chatMessages}
+                        onSendMessage={handleChatSendMessage}
+                        imageType={imageType}
+                        uploadedImageUrl={uploadedImageUrl}
+                      />
+                    )}
+                  </AnimatePresence>
                 </CardContent>
-                <CardFooter className="flex justify-end">
-                  <Button>Upload and Analyze</Button>
-                </CardFooter>
               </Card>
             </TabsContent>
             <TabsContent value="history" className="mt-6">
