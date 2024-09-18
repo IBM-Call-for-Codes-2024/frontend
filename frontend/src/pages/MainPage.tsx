@@ -82,13 +82,29 @@ export default function MainPage() {
     navigate('/dashboard');
   };
 
+  const handleConsultationClick = () => {
+    navigate('/consultation');
+  };
+
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
+  };
+
+  const handleAboutClick = () => {
+    navigate('/about');
+  };
+
+  const handleEncyclopediaClick = () => {
+    navigate('/encyclopedia');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50 text-gray-800">
       <header className="p-4 flex justify-between items-center bg-white bg-opacity-80 backdrop-blur-md">
         <h1 className="text-2xl font-bold text-indigo-600">SkinAI</h1>
         <nav className="flex items-center space-x-4">
-          <Button variant="ghost">Encyclopedia</Button>
-          <Button variant="ghost">About</Button>
+          <Button variant="ghost" onClick={handleEncyclopediaClick}>Encyclopedia</Button>
+          <Button variant="ghost" onClick={handleAboutClick}>About</Button>
           <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -117,8 +133,8 @@ export default function MainPage() {
             </DropdownMenuTrigger>
             {isDropdownOpen && (
               <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => openAuthModal('login')}>Login</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => openAuthModal('signup')}>Sign Up</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => openAuthModal('login')}>Login</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => openAuthModal('signup')}>Sign Up</DropdownMenuItem>
                 <DropdownMenuItem onClick={closeDropdown}>Dashboard</DropdownMenuItem>
               </DropdownMenuContent>
             )}
@@ -157,7 +173,7 @@ export default function MainPage() {
             />
           )}
         </AnimatePresence>
-        <FeatureGrid />
+        <FeatureGrid onConsultationClick={handleConsultationClick} onDashboardClick={handleDashboardClick} onLearnMoreClick={handleEncyclopediaClick}/>
       </main>
 
       <AnimatePresence>
