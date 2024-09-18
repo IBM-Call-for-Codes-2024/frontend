@@ -4,6 +4,8 @@ import { Eye, EyeOff } from 'lucide-react'
 import { Button } from "../ui/Button"
 import { Input } from "../ui/Input"
 import { Label } from "../ui/Label"
+import { GoogleLogin } from 'react-google-login';
+
 
 interface LoginProps {
   onClose: () => void
@@ -22,6 +24,29 @@ export default function Login({ onClose, onSwitchToSignup, onLogin }: LoginProps
     console.log('Login form submitted with:', { email, password })
     onLogin()
   }
+
+  const handleGoogleLoginSuccess = (response: any) => {
+    const token = response.tokenId;
+    // Send the token to your backend
+    fetch('https://backend-3d3x.onrender.com/auth/google/callback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          onLogin();
+        }
+      })
+      .catch((error) => console.error('Google login error:', error));
+  };
+
+  const handleGoogleLoginFailure = (response: any) => {
+    console.error('Google login failed:', response);
+  };
 
   return (
     <motion.div
@@ -84,6 +109,13 @@ export default function Login({ onClose, onSwitchToSignup, onLogin }: LoginProps
           Cancel
         </button>
       </div>
+      <GoogleLogin
+        clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID!}
+        buttonText="Sign in with Google"
+        onSuccess={handleGoogleLoginSuccess}
+        onFailure={handleGoogleLoginFailure}
+        cookiePolicy={'single_host_origin'}
+      />
     </motion.div>
   )
 }
