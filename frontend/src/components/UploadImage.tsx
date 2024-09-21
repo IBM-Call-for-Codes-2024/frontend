@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Upload } from 'lucide-react';
+import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 
 interface UploadImageProps {
-  imageType: 'rash' | 'eye' | null;
+  imageType: 'rash' | 'eye' | 'nail' | null;
   onImageUpload: (event: React.ChangeEvent<HTMLInputElement>, imageUrl: string) => void;
 }
 
@@ -29,7 +30,7 @@ export default function UploadImage({ imageType, onImageUpload }: UploadImagePro
       transition={{ duration: 0.5 }}
       className="text-center"
     >
-      <h2 className="text-4xl font-bold mb-6 text-indigo-800">Upload Your {imageType === 'rash' ? 'Skin' : 'Eye'} Image</h2>
+      <h2 className="text-4xl font-bold mb-6 text-indigo-800">Upload Your {imageType} Image</h2>
       <p className="text-xl mb-8 text-indigo-600">Let our AI analyze your {imageType} condition</p>
       <div className="max-w-md mx-auto">
         <label htmlFor="image-upload" className="cursor-pointer">

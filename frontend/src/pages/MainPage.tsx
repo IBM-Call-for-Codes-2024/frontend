@@ -15,13 +15,13 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 export default function MainPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [imageType, setImageType] = useState<'rash' | 'eye' | null>(null);
+  const [imageType, setImageType] = useState<'rash' | 'eye' | 'nail' | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{ text: string; isAI: boolean }>>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
 
-  const handleImageTypeSelect = (type: 'rash' | 'eye') => {
+  const handleImageTypeSelect = (type: 'rash' | 'eye' | 'nail') => {
     setImageType(type);
     setStep(1);
   };
@@ -30,7 +30,7 @@ export default function MainPage() {
     console.log('Image uploaded:', event.target.files?.[0]);
     setUploadedImageUrl(imageUrl);
     setStep(2);
-    setChatMessages([{ text: `I've analyzed your ${imageType} image. Let's discuss your symptoms in more detail.`, isAI: true }]);
+    setChatMessages([{ text: `I've analyzed your ${imageType} image. Let's discuss your condition in more detail.`, isAI: true }]);
   };
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +41,7 @@ export default function MainPage() {
     setChatMessages(prev => [...prev, { text: userMessage, isAI: false }]);
     form.reset();
     setTimeout(() => {
-      setChatMessages(prev => [...prev, { text: `Based on the ${imageType} image and your symptoms, it appears to be...`, isAI: true }]);
+      setChatMessages(prev => [...prev, { text: `Based on the ${imageType} image and your description, it appears to be...`, isAI: true }]);
     }, 1000);
   };
 
@@ -206,6 +206,7 @@ export default function MainPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      <SpeedInsights />
     </div>
   );
 }

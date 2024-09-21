@@ -7,7 +7,7 @@ import { MessageSquare, Maximize2, Minimize2 } from 'lucide-react';
 interface ChatProps {
   chatMessages: Array<{ text: string; isAI: boolean }>;
   onSendMessage: (event: React.FormEvent<HTMLFormElement>) => void;
-  imageType: 'rash' | 'eye' | null;
+  imageType: 'rash' | 'eye' | 'nail' | null;
   uploadedImageUrl: string | null;
 }
 
