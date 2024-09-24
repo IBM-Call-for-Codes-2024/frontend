@@ -15,13 +15,13 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 export default function MainPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [imageType, setImageType] = useState<'rash' | 'eye' | null>(null);
+  const [imageType, setImageType] = useState<'rash' | 'eye' | 'nail' | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{ text: string; isAI: boolean }>>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
 
-  const handleImageTypeSelect = (type: 'rash' | 'eye') => {
+  const handleImageTypeSelect = (type: 'rash' | 'eye' | 'nail') => {
     setImageType(type);
     setStep(1);
   };
@@ -30,7 +30,7 @@ export default function MainPage() {
     console.log('Image uploaded:', event.target.files?.[0]);
     setUploadedImageUrl(imageUrl);
     setStep(2);
-    setChatMessages([{ text: `I've analyzed your ${imageType} image. Let's discuss your symptoms in more detail.`, isAI: true }]);
+    setChatMessages([{ text: `I've analyzed your ${imageType} image. Let's discuss your condition in more detail.`, isAI: true }]);
   };
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +41,7 @@ export default function MainPage() {
     setChatMessages(prev => [...prev, { text: userMessage, isAI: false }]);
     form.reset();
     setTimeout(() => {
-      setChatMessages(prev => [...prev, { text: `Based on the ${imageType} image and your symptoms, it appears to be...`, isAI: true }]);
+      setChatMessages(prev => [...prev, { text: `Based on the ${imageType} image and your description, it appears to be...`, isAI: true }]);
     }, 1000);
   };
 
@@ -82,13 +82,29 @@ export default function MainPage() {
     navigate('/dashboard');
   };
 
+  const handleConsultationClick = () => {
+    navigate('/consultation');
+  };
+
+  const handleDashboardClick = () => {
+    navigate('/dashboard');
+  };
+
+  const handleAboutClick = () => {
+    navigate('/about');
+  };
+
+  const handleEncyclopediaClick = () => {
+    navigate('/encyclopedia');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50 text-gray-800">
       <header className="p-4 flex justify-between items-center bg-white bg-opacity-80 backdrop-blur-md">
         <h1 className="text-2xl font-bold text-indigo-600">SkinAI</h1>
         <nav className="flex items-center space-x-4">
-          <Button variant="ghost">Encyclopedia</Button>
-          <Button variant="ghost">About</Button>
+          <Button variant="ghost" onClick={handleEncyclopediaClick}>Encyclopedia</Button>
+          <Button variant="ghost" onClick={handleAboutClick}>About</Button>
           <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -117,8 +133,8 @@ export default function MainPage() {
             </DropdownMenuTrigger>
             {isDropdownOpen && (
               <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => openAuthModal('login')}>Login</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => openAuthModal('signup')}>Sign Up</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => openAuthModal('login')}>Login</DropdownMenuItem>
+                <DropdownMenuItem onSelect={() => openAuthModal('signup')}>Sign Up</DropdownMenuItem>
                 <DropdownMenuItem onClick={closeDropdown}>Dashboard</DropdownMenuItem>
               </DropdownMenuContent>
             )}
@@ -157,7 +173,7 @@ export default function MainPage() {
             />
           )}
         </AnimatePresence>
-        <FeatureGrid />
+        <FeatureGrid onConsultationClick={handleConsultationClick} onDashboardClick={handleDashboardClick} onLearnMoreClick={handleEncyclopediaClick}/>
       </main>
 
       <AnimatePresence>
@@ -190,6 +206,7 @@ export default function MainPage() {
           </motion.div>
         )}
       </AnimatePresence>
+      <SpeedInsights />
     </div>
   );
 }
