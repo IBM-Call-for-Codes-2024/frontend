@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from "../components/ui/Button"
 import { Input } from "../components/ui/Input"
@@ -11,6 +11,8 @@ import { User, Upload, MessageSquare, BarChart2, Settings } from 'lucide-react'
 import DiseaseOptions from '../components/DiseaseOptions'
 import UploadImage from '../components/UploadImage'
 import Chat from '../components/Chat'
+import axios from 'axios';
+
 
 interface ChatMessage {
   id: string
@@ -57,6 +59,16 @@ export default function UserDashboard() {
   const [imageType, setImageType] = useState<'rash' | 'eye' | null>(null)
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
   const [chatMessages, setChatMessages] = useState<Array<{ text: string; isAI: boolean }>>([])
+  const [userData, setUserData] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    notifications: 'All notifications',
+  });
+
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
@@ -98,6 +110,60 @@ export default function UserDashboard() {
     }, 1000)
   }
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Assuming the token is stored in localStorage
+
+        const response = await axios.get('http://localhost:3001/user/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setUserData(response.data);
+      } catch (err) {
+        console.error('Error fetching user data:', err);
+        setError('Failed to fetch user data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Handle form input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const [name, last_name] = formData.name.split(' '); // Split full name into name and last name
+
+    try {
+      const response = await axios.patch('/api/user/update', {
+        name,
+        last_name,
+        email: formData.email,
+        notifications: formData.notifications,  // You can send this if it's part of your model
+      });
+
+      if (response.status === 200) {
+        alert('Changes saved successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating user data:', error);
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50 p-8">
       <Card className="w-full max-w-6xl mx-auto bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-xl overflow-hidden">
@@ -121,7 +187,9 @@ export default function UserDashboard() {
             <TabsContent value="overview" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Welcome back, User!</CardTitle>
+                  <CardTitle className="text-2xl font-bold text-indigo-600">
+                    Welcome back, {userData?.name || 'User'}!
+                  </CardTitle>
                   <CardDescription>Here's an overview of your account activity.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -265,28 +333,46 @@ export default function UserDashboard() {
                   <CardDescription>Manage your account preferences and information.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form className="space-y-4">
-                    <div>
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input id="name" defaultValue="John Doe" />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" defaultValue="john.doe@example.com" />
-                    </div>
-                    <div>
-                      <Label htmlFor="notifications">Notification Preferences</Label>
-                      <select id="notifications" className="w-full p-2 border border-gray-300 rounded-md">
-                        <option>All notifications</option>
-                        <option>Important only</option>
-                        <option>None</option>
-                      </select>
-                    </div>
-                  </form>
+                  {user ? (
+                    <form className="space-y-4" onSubmit={handleSubmit}>
+                      <div>
+                        <Label htmlFor="name">Full Name</Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="notifications">Notification Preferences</Label>
+                        <select
+                          id="notifications"
+                          value={formData.notifications}
+                          onChange={handleChange}
+                          className="w-full p-2 border border-gray-300 rounded-md"
+                        >
+                          <option>All notifications</option>
+                          <option>Important only</option>
+                          <option>None</option>
+                        </select>
+                      </div>
+                      <CardFooter className="flex justify-end">
+                        <Button type="submit">Save Changes</Button>
+                      </CardFooter>
+                    </form>
+                  ) : (
+                    <p>Loading user info...</p>
+                  )}
                 </CardContent>
-                <CardFooter className="flex justify-end">
-                  <Button>Save Changes</Button>
-                </CardFooter>
               </Card>
             </TabsContent>
           </Tabs>

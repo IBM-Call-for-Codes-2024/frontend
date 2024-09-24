@@ -1,23 +1,66 @@
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Eye, EyeOff } from 'lucide-react'
-import { Button } from "../ui/Button"
-import { Input } from "../ui/Input"
-import { Label } from "../ui/Label"
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
+import { Button } from "../ui/Button";
+import { Input } from "../ui/Input";
+import { Label } from "../ui/Label";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+
 
 interface SignupProps {
-  onClose: () => void
-  onSwitchToLogin: () => void
+  onClose: () => void;
+  onSwitchToLogin: () => void;
 }
 
 export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    lastName: '',
+    email: '',
+    username: '',
+    password: '',
+    height: '',
+    weight: '',
+    sex: '',
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    // Handle signup logic here
-    console.log('Signup form submitted')
-  }
+  const navigate = useNavigate(); // Initialize useNavigate
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post('http://localhost:3001/auth/signup', {
+        name: formData.name,
+        last_name: formData.lastName,
+        email: formData.email,
+        username: formData.username,
+        password: formData.password,
+        height: parseFloat(formData.height) || null,
+        weight: parseFloat(formData.weight) || null,
+        sex: formData.sex,
+      });
+      console.log('Signup successful', response.data);
+      
+      // Save the token in localStorage
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard'); 
+    } catch (error) {
+      // show error message
+      console.error('Signup error:', error);
+      // Handle error (e.g., show an error message)
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [id]: value
+    }));
+  };
 
   return (
     <motion.div
@@ -31,11 +74,19 @@ export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Label htmlFor="name">Full Name</Label>
-          <Input id="name" type="text" placeholder="Enter your full name" required />
+          <Input id="name" type="text" value={formData.name} onChange={handleInputChange} placeholder="Enter your full name" required />
+        </div>
+        <div>
+          <Label htmlFor="lastName">Last Name</Label>
+          <Input id="lastName" type="text" value={formData.lastName} onChange={handleInputChange} placeholder="Enter your last name" required />
         </div>
         <div>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="Enter your email" required />
+          <Input id="email" type="email" value={formData.email} onChange={handleInputChange} placeholder="Enter your email" required />
+        </div>
+        <div>
+          <Label htmlFor="username">Username</Label>
+          <Input id="username" type="text" value={formData.username} onChange={handleInputChange} placeholder="Enter a username" required />
         </div>
         <div>
           <Label htmlFor="password">Password</Label>
@@ -43,6 +94,8 @@ export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
             <Input
               id="password"
               type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={handleInputChange}
               placeholder="Create a password"
               required
             />
@@ -76,5 +129,5 @@ export default function Signup({ onClose, onSwitchToLogin }: SignupProps) {
         </button>
       </div>
     </motion.div>
-  )
+  );
 }
