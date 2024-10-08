@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
@@ -16,56 +16,61 @@ export default function Chat({ chatMessages, onSendMessage, imageType, uploadedI
   const [isFullSize, setIsFullSize] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const audioBlobRef = useRef<Blob | null>(null);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
 
   const toggleSize = () => setIsFullSize(!isFullSize);
 
-  const handleStartRecording = () => {
-    setAudioChunks([]);  // Clear previous audio chunks before starting a new recording
-    navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-      const recorder = new MediaRecorder(stream);
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+
       setMediaRecorder(recorder);
       setIsRecording(true);
-  
-      recorder.ondataavailable = (e) => {
-        setAudioChunks((prev) => [...prev, e.data]);
+
+      let chunks: BlobPart[] = [];
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunks.push(event.data);
+        }
       };
-  
+
+      recorder.onstop = () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        setAudioBlob(audioBlob);
+      };
+
       recorder.start();
-    });
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+    }
   };
-  
 
   const handleStopRecording = async () => {
     if (mediaRecorder) {
       mediaRecorder.stop();
       setIsRecording(false);
+      await uploadAudio(audioBlob);
+    }
+  };
 
-      const audioBlob = new Blob(audioChunks, { type: 'audio/flac' });
-      audioBlobRef.current = audioBlob;
+  const uploadAudio = async (audioBlob: Blob | null) => {
+    if (!audioBlob) return;
 
-      // Create FormData for the file upload
-      const formData = new FormData();
-      formData.append('audio', audioBlob, 'audio-file.flac'); // Adjust the filename and type if needed
+    const formData = new FormData();
+    formData.append('audio', audioBlob, 'recording.webm');
 
-      try {
-        // Send the audio file to your backend endpoint
-        const response = await axios.post('http://localhost:3001/speech/speech-to-text', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data', // Required for file uploads
-          },
-        });
+    try {
+      const response = await axios.post('http://localhost:3001/speech/speech-to-text', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
-        // Assuming the backend returns the transcription in response.data.transcription
-        const transcript = response.data.transcription;
-        chatMessages.push({ text: transcript, isAI: false });
-
-      } catch (error) {
-        console.error('Error uploading audio:', error);
-      }
-
-      setAudioChunks([]);
+      const { transcription } = response.data;
+      console.log('Transcription:', transcription);
+      chatMessages.push({ text: transcription, isAI: false });
+    } catch (error) {
+      console.error('Error sending audio file:', error);
     }
   };
 
