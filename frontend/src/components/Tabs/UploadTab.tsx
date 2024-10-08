@@ -7,7 +7,7 @@ import Chat from '../Chat';
 
 const UploadTab = () => {
   const [uploadStep, setUploadStep] = useState(0);
-  const [imageType, setImageType] = useState<'rash' | 'eye' | 'nail' | null>(null);
+  const [imageType, setImageType] = useState<'skin' | 'eye' | 'nail' | null>(null);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{ text: string; isAI: boolean }>>([]);
 
@@ -15,7 +15,7 @@ const UploadTab = () => {
     if (uploadStep > 0) setUploadStep((prev) => prev - 1);
   };
 
-  const handleImageTypeSelect = (type: 'rash' | 'eye' | 'nail') => {
+  const handleImageTypeSelect = (type: 'skin' | 'eye' | 'nail') => {
     setImageType(type);
     setUploadStep(1);
   };

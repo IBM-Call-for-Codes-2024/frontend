@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Upload } from 'lucide-react';
-import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
 
 interface UploadImageProps {
-  imageType: 'rash' | 'eye' | 'nail' | null;
+  imageType: 'skin' | 'eye' | 'nail' | null;
   onImageUpload: (event: React.ChangeEvent<HTMLInputElement>, imageUrl: string) => void;
 }
 
@@ -42,14 +40,20 @@ export default function UploadImage({ imageType, onImageUpload }: UploadImagePro
             {previewUrl ? (
               <img src={previewUrl} alt="Uploaded image" className="max-w-full h-auto rounded-lg" />
             ) : (
-              <>
-                <Upload className="mx-auto h-16 w-16 text-indigo-500" />
-                <p className="mt-4 text-lg text-indigo-600">Click or drag and drop to upload an image</p>
-              </>
+              <div className="flex flex-col items-center">
+                <Upload className="h-12 w-12 text-indigo-600 mb-4" />
+                <span className="text-indigo-600">Click to Upload {imageType} Image</span>
+              </div>
             )}
           </motion.div>
-          <Input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
         </label>
+        <input
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageUpload}
+        />
       </div>
     </motion.div>
   );

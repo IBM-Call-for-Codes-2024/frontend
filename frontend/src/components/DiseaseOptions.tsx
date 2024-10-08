@@ -3,7 +3,7 @@ import { Button } from "./ui/Button";
 import { Stethoscope, Eye } from 'lucide-react';
 
 interface DiseaseOptionsProps {
-  onImageTypeSelect: (type: 'rash' | 'eye' | 'nail') => void;
+  onImageTypeSelect: (type: 'skin' | 'eye' | 'nail') => void;
   fromDashboard?: boolean;
 }
 
@@ -51,11 +51,11 @@ export default function DiseaseOptions(props: DiseaseOptionsProps) {
       <div className="flex justify-center space-x-8">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button
-            onClick={() => onImageTypeSelect('rash')}
+            onClick={() => onImageTypeSelect('skin')}
             className="p-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl flex flex-col items-center transition-all"
           >
             <Stethoscope className="h-16 w-16 mb-4" />
-            <span className="text-lg font-semibold">Skin Rash</span>
+            <span className="text-lg font-semibold">Skin</span>
           </Button>
         </motion.div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -64,7 +64,7 @@ export default function DiseaseOptions(props: DiseaseOptionsProps) {
             className="p-8 bg-blue-500 hover:bg-blue-600 text-white rounded-xl flex flex-col items-center transition-all"
           >
             <Eye className="h-16 w-16 mb-4" />
-            <span className="text-lg font-semibold">Eye Condition</span>
+            <span className="text-lg font-semibold">Eye </span>
           </Button>
         </motion.div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -73,7 +73,7 @@ export default function DiseaseOptions(props: DiseaseOptionsProps) {
             className="p-8 bg-indigo-400 hover:bg-indigo-500 text-white rounded-xl flex flex-col items-center transition-all"
           >
             <Fingernail className="h-16 w-16 mb-4" />
-            <span className="text-lg font-semibold">Nail Condition</span>
+            <span className="text-lg font-semibold">Nail </span>
           </Button>
         </motion.div>
       </div>

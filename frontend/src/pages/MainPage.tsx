@@ -11,27 +11,82 @@ import FeatureGrid from '../components/ui/FeatureGrid';
 import Login from '../components/Auth/Login';
 import Signup from '../components/Auth/Signup';
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import axios from 'axios';
+
 
 export default function MainPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [imageType, setImageType] = useState<'rash' | 'eye' | 'nail' | null>(null);
+  const [imageType, setImageType] = useState<'skin' | 'eye' | 'nail' | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{ text: string; isAI: boolean }>>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
+  const [loading, setLoading] = useState(false); // Loading state for AI analysis
 
-  const handleImageTypeSelect = (type: 'rash' | 'eye' | 'nail') => {
+  const handleImageTypeSelect = (type: 'skin' | 'eye' | 'nail') => {
     setImageType(type);
     setStep(1);
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, imageUrl: string) => {
+    setUploadedImageUrl(imageUrl);
+    setStep(2);
+    setLoading(true);
+    setChatMessages([{ text: `Analyzing your ${imageType} image...`, isAI: true }]);
+
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('type', imageType!);
+
+    let apiUrl;
+    switch (imageType) {
+      case 'eye':
+        apiUrl = 'http://localhost:5000/predict/cataracts';
+        break;
+      case 'nail':
+        apiUrl = 'http://localhost:5000/predict/nails';
+        break;
+      case 'skin':
+        apiUrl = 'http://localhost:5000/predict/skin';
+        break;
+      default:
+        return;
+    }
+
+    try {
+      const response = await axios.post(apiUrl, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      
+      console.log('Prediction result:', response);
+
+      const prediction = response.data.prediction;
+      setChatMessages(prev => [
+        ...prev,
+        { text: `Prediction result: ${prediction}. Let's discuss your condition in more detail.`, isAI: true },
+      ]);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setChatMessages(prev => [
+        ...prev,
+        { text: 'There was an error uploading the image. Please try again.', isAI: true },
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  /*
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, imageUrl: string) => {
     console.log('Image uploaded:', event.target.files?.[0]);
     setUploadedImageUrl(imageUrl);
     setStep(2);
     setChatMessages([{ text: `I've analyzed your ${imageType} image. Let's discuss your condition in more detail.`, isAI: true }]);
   };
+  */
 
   const handleSendMessage = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -101,7 +156,7 @@ export default function MainPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50 text-gray-800">
       <header className="p-4 flex justify-between items-center bg-white bg-opacity-80 backdrop-blur-md">
-        <h1 className="text-2xl font-bold text-indigo-600">SkinAI</h1>
+        <h1 className="text-2xl font-bold text-indigo-600">HealthLens</h1>
         <nav className="flex items-center space-x-4">
           <Button variant="ghost" onClick={handleEncyclopediaClick}>Encyclopedia</Button>
           <Button variant="ghost" onClick={handleAboutClick}>About</Button>
