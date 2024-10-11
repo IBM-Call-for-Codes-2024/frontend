@@ -12,10 +12,22 @@ import UploadTab from '../components/Tabs/UploadTab';
 import HistoryTab from '../components/Tabs/HistoryTab';
 import SettingsTab from '../components/Tabs/SettingsTab';
 
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  height: number;
+  weight: number;
+  sex: string;
+  totalScans: number;
+  //recentSymptoms: string[];
+}
+
 export default function UserDashboard() {
   const navigate = useNavigate()
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,17 +61,32 @@ export default function UserDashboard() {
   const handleEmailReport = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:3001/user/email-report', {}, {
+      const reportData = {
+        firstName: userData?.firstName,
+        lastName: userData?.lastName,
+        email: userData?.email,
+        username: userData?.username,
+        height: userData?.height,
+        weight: userData?.weight,
+        sex: userData?.sex,
+        totalScans: userData?.totalScans,
+        //recentSymptoms: userData?.recentSymptoms,
+      };
+    
+      await axios.post('http://localhost:3001/user/email-report', reportData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+    
       alert('Report has been sent to your email!');
     } catch (err) {
       console.error('Error sending report:', err);
       alert('Failed to send report. Please try again later.');
     }
   };
+  
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50 p-8">
