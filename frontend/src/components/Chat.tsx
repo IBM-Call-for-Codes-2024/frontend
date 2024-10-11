@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from './ui/Input';
 import { Button } from './ui/Button';
@@ -16,61 +16,52 @@ export default function Chat({ chatMessages, onSendMessage, imageType, uploadedI
   const [isFullSize, setIsFullSize] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const audioChunks = useRef<Blob[]>([]);
 
   const toggleSize = () => setIsFullSize(!isFullSize);
 
   const handleStartRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-
-      setMediaRecorder(recorder);
-      setIsRecording(true);
-
-      let chunks: BlobPart[] = [];
+      const recorder = new MediaRecorder(stream);
 
       recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunks.push(event.data);
-        }
+        audioChunks.current.push(event.data);
       };
 
-      recorder.onstop = () => {
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-        setAudioBlob(audioBlob);
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' });
+        const formData = new FormData();
+        formData.append('audio', audioBlob);
+
+        // Send the audio to the backend for IBM Speech to Text processing
+        await axios.post('http://localhost:3001/speech/speech-to-text', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }).then((response) => {
+          // Handle response from IBM Speech to Text
+          console.log(response.data);
+          // You can use response.data to display the transcribed text in the chat
+        }).catch((error) => {
+          console.error('Error transcribing voice:', error);
+        });
+
+        audioChunks.current = []; // Clear audio chunks for next recording
       };
 
+      setMediaRecorder(recorder);
       recorder.start();
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
     }
   };
 
-  const handleStopRecording = async () => {
+  const handleStopRecording = () => {
     if (mediaRecorder) {
       mediaRecorder.stop();
       setIsRecording(false);
-      await uploadAudio(audioBlob);
-    }
-  };
-
-  const uploadAudio = async (audioBlob: Blob | null) => {
-    if (!audioBlob) return;
-
-    const formData = new FormData();
-    formData.append('audio', audioBlob, 'recording.webm');
-
-    try {
-      const response = await axios.post('http://localhost:3001/speech/speech-to-text', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      const { transcription } = response.data;
-      console.log('Transcription:', transcription);
-      chatMessages.push({ text: transcription, isAI: false });
-    } catch (error) {
-      console.error('Error sending audio file:', error);
     }
   };
 
