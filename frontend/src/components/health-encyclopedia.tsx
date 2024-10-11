@@ -219,11 +219,9 @@ export default function HealthEncyclopedia() {
                           
                           {expandedCondition === condition.name && (
                             <div className="mt-2 text-sm text-gray-600">
-                              <textarea
-                                value={conditionInfo[condition.name] || condition.info}
-                                onChange={(e) => handleInfoChange(condition.name, e.target.value)}
+                              <p
+                                dangerouslySetInnerHTML={{ __html: conditionInfo[condition.name] || condition.info }}
                                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                                rows={3}
                               />
                             </div>
                           )}
