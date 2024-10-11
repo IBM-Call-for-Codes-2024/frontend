@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/Tabs"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/Cards"
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/Avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../components/ui/DropdownMenu"
-import { User } from 'lucide-react'
+import { User, Mail } from 'lucide-react'
 import axios from 'axios';
 import OverviewTab from '../components/Tabs/OverviewTab';
 import UploadTab from '../components/Tabs/UploadTab';
@@ -46,6 +46,21 @@ export default function UserDashboard() {
     fetchUserData();
   }, []);
 
+  const handleEmailReport = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:3001/user/email-report', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      alert('Report has been sent to your email!');
+    } catch (err) {
+      console.error('Error sending report:', err);
+      alert('Failed to send report. Please try again later.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50 p-8">
       <header className="p-4 flex justify-between items-center bg-white bg-opacity-80 backdrop-blur-md">
@@ -68,15 +83,26 @@ export default function UserDashboard() {
           </DropdownMenu>
         </nav>
       </header>
-      <main className="container mx-auto px-4 py-12"></main>
+      <main className="container mx-auto px-4 py-12">
         <Card className="w-full max-w-6xl mx-auto bg-white bg-opacity-90 backdrop-blur-lg shadow-xl rounded-xl overflow-hidden">
           <CardHeader className="border-b border-gray-200">
             <div className="flex items-center justify-between">
               <CardTitle className="text-2xl font-bold text-indigo-600">User Dashboard</CardTitle>
-              <Avatar className="h-10 w-10">
-                <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
-                <AvatarFallback><User /></AvatarFallback>
-              </Avatar>
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant="outline" 
+                  size="default"
+                  onClick={handleEmailReport}
+                  className="flex items-center space-x-2"
+                >
+                  <Mail className="h-4 w-4" />
+                  <span>Email me my report</span>
+                </Button>
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
+                  <AvatarFallback><User /></AvatarFallback>
+                </Avatar>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="p-6">
@@ -102,6 +128,7 @@ export default function UserDashboard() {
             </Tabs>
           </CardContent>
         </Card>
+      </main>
     </div>
   )
 }

@@ -41,7 +41,6 @@ export default function DiseaseOptions(props: DiseaseOptionsProps) {
       transition={{ duration: 0.5 }}
       className="text-center"
     >
-      {/* show if we don't come from user dashboard*/}
       {!fromDashboard && (      
         <>
           <h2 className="text-4xl font-bold mb-6 text-indigo-800">Discover Your Health's Story</h2>
