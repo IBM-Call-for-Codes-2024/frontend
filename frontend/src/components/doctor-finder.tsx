@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./ui/Cards"
 import { Badge } from "./ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/Avatar"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/Tooltip"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/Select"
 import { MapPin, User, Phone, Globe, Loader2 } from 'lucide-react'
@@ -15,8 +14,7 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiZWdkMDIiLCJhIjoiY2x6enc2MDhuMWhnZTJqczJxZnRua
 interface Doctor {
   place_id: string
   name: string
-  vicinity: string
-  types: string[]
+  formatted_address: string
   rating?: number
   user_ratings_total?: number
   geometry: {
@@ -25,13 +23,15 @@ interface Doctor {
       lng: number
     }
   }
+  formatted_phone_number?: string
+  website?: string
 }
 
 const specialties = [
   { value: "all", label: "All Specialties" },
-  { value: "eye_care", label: "Eye Care" },
-  { value: "dermatologist", label: "Skin Care" },
-  { value: "nail_salon", label: "Nail Care" },
+  { value: "eye_care", label: "Eye Specialist" },
+  { value: "dermatologist", label: "Skin Specialist" },
+  { value: "nail_specialist", label: "Nail Specialist" },
 ]
 
 const DoctorFinder: React.FC = () => {
@@ -42,17 +42,20 @@ const DoctorFinder: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const markerRef = useRef<mapboxgl.Marker | null>(null)
 
-  const fetchNearbyDoctors = useCallback(async (lat: number, lng: number, specialty: string) => {
+    const fetchNearbyDoctors = useCallback(async (lat: number, lng: number, specialty: string) => {
     setIsLoading(true);
     setError(null);
-
+    console.log('Fetching nearby doctors:', { lat, lng, specialty });
+  
     try {
-      const response = await fetch(`http://localhost:5000/api/nearby-doctors?lat=${lat}&lng=${lng}&specialty=${specialty}`);
+      const response = await fetch(`http://localhost:3001/map/nearby-doctors?lat=${lat}&lng=${lng}&specialty=${encodeURIComponent(specialty)}`);
+      console.log('Response status:', response.status);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      setDoctors(data.results);
+      console.log('Fetched data:', data);
+      setDoctors(data.results || []);
     } catch (error) {
       console.error('Fetch Error:', error);
       setError('Failed to fetch doctors');
@@ -87,32 +90,33 @@ const DoctorFinder: React.FC = () => {
         })
       })
 
-      newMap.on('click', (e) => {
+      setMap(newMap)
+    }
+
+    if (map) {
+      const handleMapClick = (e: mapboxgl.MapMouseEvent) => {
         const { lng, lat } = e.lngLat
         fetchNearbyDoctors(lat, lng, selectedSpecialty)
-        newMap.flyTo({ center: [lng, lat], zoom: 12, duration: 2000 })
+        map.flyTo({ center: [lng, lat], zoom: 12, duration: 2000 })
         
         if (markerRef.current) {
           markerRef.current.remove()
         }
         
-        const newMarker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(newMap)
+        const newMarker = new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map)
         markerRef.current = newMarker
-      })
+      }
 
-      setMap(newMap)
+      map.on('click', handleMapClick)
+
+      return () => {
+        map.off('click', handleMapClick)
+      }
     }
   }, [map, fetchNearbyDoctors, selectedSpecialty])
 
-  useEffect(() => {
-    if (map) {
-      const center = map.getCenter()
-      fetchNearbyDoctors(center.lat, center.lng, selectedSpecialty)
-    }
-  }, [selectedSpecialty, map, fetchNearbyDoctors])
-
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle className="text-3xl font-bold">Find a Doctor Near You</CardTitle>
@@ -153,50 +157,50 @@ const DoctorFinder: React.FC = () => {
               {doctors.map((doctor) => (
                 <li key={doctor.place_id} className="bg-secondary p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-start space-x-4">
-                    <Avatar className="h-12 w-12">
-                      <AvatarFallback>{doctor.name[0]}</AvatarFallback>
-                    </Avatar>
                     <div className="flex-grow">
                       <h3 className="text-lg font-semibold">{doctor.name}</h3>
-                      <p className="text-sm text-muted-foreground">{doctor.types.join(', ')}</p>
                       <div className="flex items-center mt-2">
                         <MapPin className="h-4 w-4 text-muted-foreground mr-1" />
-                        <span className="text-sm text-muted-foreground">{doctor.vicinity}</span>
+                        <span className="text-sm text-muted-foreground">{doctor.formatted_address}</span>
                       </div>
                     </div>
                     {doctor.rating && (
                       <Badge variant="secondary" className="ml-auto">
-                        {doctor.rating} ★ ({doctor.user_ratings_total})
+                        {doctor.rating.toFixed(1)} ★ ({doctor.user_ratings_total})
                       </Badge>
                     )}
                   </div>
                   <div className="mt-4 flex space-x-2">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
-                            <Phone className="h-4 w-4" />
-                            <span className="sr-only">Call {doctor.name}</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Call {doctor.name}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
-                            <Globe className="h-4 w-4" />
-                            <span className="sr-only">Visit {doctor.name}'s website</span>
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Visit website</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    {doctor.formatted_phone_number && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a href={`tel:${doctor.formatted_phone_number}`} className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
+                              <Phone className="h-4 w-4" />
+                              <span className="sr-only">Call {doctor.name}</span>
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Call: {doctor.formatted_phone_number}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                    {doctor.website && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <a href={doctor.website} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
+                              <Globe className="h-4 w-4" />
+                              <span className="sr-only">Visit {doctor.name}'s website</span>
+                            </a>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Visit website</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </div>
                 </li>
               ))}

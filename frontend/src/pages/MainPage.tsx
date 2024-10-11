@@ -98,7 +98,7 @@ export default function MainPage() {
     setTimeout(() => {
       setChatMessages(prev => [...prev, { text: `Based on the ${imageType} image and your description, it appears to be...`, isAI: true }]);
     }, 1000);
-  };
+  }; 
 
   const toggleDropdown = () => {
     setIsDropdownOpen(prev => !prev);
