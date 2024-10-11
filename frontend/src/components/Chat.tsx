@@ -7,7 +7,7 @@ import { MessageSquare, Maximize2, Minimize2 } from 'lucide-react';
 interface ChatProps {
   chatMessages: Array<{ text: string; isAI: boolean }>;
   onSendMessage: (event: React.FormEvent<HTMLFormElement>) => void;
-  imageType: 'rash' | 'eye' | 'nail' | null;
+  imageType: 'skin' | 'eye' | 'nail' | null;
   uploadedImageUrl: string | null;
 }
 
@@ -77,7 +77,7 @@ export default function Chat({ chatMessages, onSendMessage, imageType, uploadedI
                 transition={{ duration: 0.3 }}
                 className={`${isFullSize ? 'w-full mt-6' : 'flex-1 pl-6 border-l border-indigo-100'}`}
               >
-                <h3 className="text-2xl font-semibold mb-4 text-indigo-700">Uploaded {imageType === 'rash' ? 'Skin' : 'Eye'} Image</h3>
+                <h3 className="text-2xl font-semibold mb-4 text-indigo-700">Uploaded {imageType === 'nail' ? 'Skin' : 'Eye'} Image</h3>
                 <img src={uploadedImageUrl} alt={`Uploaded ${imageType} image`} className="w-full h-auto rounded-lg shadow-md" />
               </motion.div>
             )}

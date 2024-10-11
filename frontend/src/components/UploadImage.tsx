@@ -5,7 +5,7 @@ import { Button } from "./ui/Button";
 import { Input } from "./ui/Input";
 
 interface UploadImageProps {
-  imageType: 'rash' | 'eye' | 'nail' | null;
+  imageType: 'skin' | 'eye' | 'nail' | null;
   onImageUpload: (event: React.ChangeEvent<HTMLInputElement>, imageUrl: string) => void;
 }
 

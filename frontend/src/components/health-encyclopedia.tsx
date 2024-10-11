@@ -8,29 +8,62 @@ import { motion } from "framer-motion";
 export default function HealthEncyclopedia() {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const categories = [
-    "Skin Conditions",
-    "Eye Conditions",
-    "Inflammatory Conditions",
-    "Infectious Conditions",
-    "Autoimmune Conditions"
+  const mainCategories = [
+    { name: "Skin Conditions", icon: "🧴" },
+    { name: "Eye Conditions", icon: "👁️" },
+    { name: "Nail Conditions", icon: "💅" },
+    { name: "Melanoma", icon: "🔬" },
   ];
 
-  const conditionCategories = [
-    { name: "Skin Conditions", description: "Explore various skin-related issues and treatments", image: "/placeholder.svg?height=200&width=200" },
-    { name: "Eye Conditions", description: "Learn about common eye problems and their solutions", image: "/placeholder.svg?height=200&width=200" },
-    { name: "Inflammatory Conditions", description: "Understand conditions caused by inflammation in the body", image: "/placeholder.svg?height=200&width=200" },
-    { name: "Infectious Conditions", description: "Discover information about various infectious diseases", image: "/placeholder.svg?height=200&width=200" },
-    { name: "Autoimmune Conditions", description: "Learn about disorders where the immune system attacks the body", image: "/placeholder.svg?height=200&width=200" }
-  ];
+  const allConditions = [
+    // Skin Conditions
+    { name: "Acne and Rosacea", category: "Skin Conditions", severity: "Mild to Moderate" },
+    { name: "Actinic Keratosis Basal Cell Carcinoma", category: "Skin Conditions", severity: "Severe" },
+    { name: "Atopic Dermatitis", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Bullous Disease", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Cellulitis Impetigo", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Eczema", category: "Skin Conditions", severity: "Mild to Moderate" },
+    { name: "Exanthems and Drug Eruptions", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Herpes HPV and other STDs", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Light Diseases and Disorders of Pigmentation", category: "Skin Conditions", severity: "Mild" },
+    { name: "Lupus and other Connective Tissue Diseases", category: "Skin Conditions", severity: "Severe" },
+    { name: "Poison Ivy and other Contact Dermatitis", category: "Skin Conditions", severity: "Mild" },
+    { name: "Psoriasis", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Scabies Lyme Disease", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Seborrheic Keratoses", category: "Skin Conditions", severity: "Mild" },
+    { name: "Systemic Diseases", category: "Skin Conditions", severity: "Severe" },
+    { name: "Tinea Ringworm Candidiasis", category: "Skin Conditions", severity: "Mild" },
+    { name: "Urticaria Hives", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Vascular Tumors", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Vasculitis", category: "Skin Conditions", severity: "Moderate" },
+    { name: "Warts Molluscum", category: "Skin Conditions", severity: "Mild" },
 
-  const conditionList = [
-    { name: "Psoriasis", summary: "A chronic autoimmune condition that causes the rapid buildup of skin cells, resulting in scaling on the skin's surface.", severity: "Moderate" },
-    { name: "Glaucoma", summary: "A group of eye conditions that damage the optic nerve, often caused by abnormally high pressure in your eye.", severity: "Severe" },
-    { name: "Rosacea", summary: "A common skin condition that causes redness and visible blood vessels in your face.", severity: "Mild" },
-    { name: "Cataracts", summary: "A clouding of the normally clear lens of your eye, leading to a decrease in vision.", severity: "Moderate" },
-    { name: "Dermatitis", summary: "A general term that describes inflammation of the skin, often characterized by an itchy rash.", severity: "Mild" }
+    // Eye Conditions
+    { name: "Cataract", category: "Eye Conditions", severity: "Moderate" },
+
+    // Nail Conditions
+    { name: "Darier's Disease", category: "Nail Conditions", severity: "Moderate" },
+    { name: "Muehrck-e's lines", category: "Nail Conditions", severity: "Mild" },
+    { name: "Beau's lines", category: "Nail Conditions", severity: "Mild" },
+    { name: "Bluish nail", category: "Nail Conditions", severity: "Mild" },
+    { name: "Clubbing", category: "Nail Conditions", severity: "Moderate" },
+    { name: "Half and Half Nails (Lindsay's nails)", category: "Nail Conditions", severity: "Mild" },
+    { name: "Koilonychia", category: "Nail Conditions", severity: "Mild" },
+    { name: "Leukonychia", category: "Nail Conditions", severity: "Mild" },
+    { name: "Onycholycis", category: "Nail Conditions", severity: "Mild" },
+    { name: "Pale Nail", category: "Nail Conditions", severity: "Mild" },
+    { name: "Red Lunula", category: "Nail Conditions", severity: "Mild" },
+    { name: "Splinter Hemmorrages", category: "Nail Conditions", severity: "Mild" },
+    { name: "Terry's nail", category: "Nail Conditions", severity: "Mild" },
+    { name: "White nail", category: "Nail Conditions", severity: "Mild" },
+    { name: "Yellow nails", category: "Nail Conditions", severity: "Mild" },
+
+    // Melanoma
+    { name: "Melanoma Skin Cancer Nevi and Moles", category: "Melanoma", severity: "Severe" },
+    { name: "Benign", category: "Melanoma", severity: "Mild" },
+    { name: "Malignant", category: "Melanoma", severity: "Severe" },
   ];
 
   const toggleDropdown = () => {
@@ -40,6 +73,10 @@ export default function HealthEncyclopedia() {
   const handleAboutClick = () => {
     navigate('/about');
   };
+
+  const filteredConditions = selectedCategory === 'All' 
+    ? allConditions 
+    : allConditions.filter(condition => condition.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-100 via-purple-50 to-teal-50 text-gray-800">
@@ -95,7 +132,25 @@ export default function HealthEncyclopedia() {
         >
           <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
             <h1 className="text-3xl font-bold text-indigo-800 mb-4">SkinAI Health Encyclopedia</h1>
-            <p className="text-indigo-600 mb-6">Your Comprehensive Guide to Skin and Eye Conditions</p>
+            <p className="text-indigo-600 mb-6">Your Comprehensive Guide to Skin, Eye, and Nail Conditions</p>
+            
+            <section className="mb-8">
+              <h2 className="text-2xl font-bold text-indigo-700 mb-4">Major Categories</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {mainCategories.map((category) => (
+                  <Button
+                    key={category.name}
+                    variant={selectedCategory === category.name ? "default" : "outline"}
+                    className="h-24 text-lg flex flex-col items-center justify-center"
+                    onClick={() => setSelectedCategory(category.name)}
+                  >
+                    <span className="text-3xl mb-2">{category.icon}</span>
+                    {category.name}
+                  </Button>
+                ))}
+              </div>
+            </section>
+
             <div className="relative mb-8">
               <input
                 type="text"
@@ -105,32 +160,11 @@ export default function HealthEncyclopedia() {
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
             </div>
 
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold text-indigo-700 mb-4">Condition Categories</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {conditionCategories.map((category) => (
-                  <div key={category.name} className="bg-white overflow-hidden shadow rounded-lg">
-                    <img className="h-48 w-full object-cover" src={category.image} alt={category.name} />
-                    <div className="p-5">
-                      <h3 className="text-lg font-medium text-indigo-900">{category.name}</h3>
-                      <p className="mt-1 text-sm text-indigo-600">{category.description}</p>
-                      <div className="mt-4">
-                        <Button variant="outline" className="flex items-center">
-                          Learn More
-                          <ChevronRight className="ml-2 -mr-1 h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
             <section>
               <h2 className="text-2xl font-bold text-indigo-700 mb-4">Condition List</h2>
               <div className="bg-white shadow overflow-hidden sm:rounded-md">
                 <ul className="divide-y divide-gray-200">
-                  {conditionList.map((condition) => (
+                  {filteredConditions.map((condition) => (
                     <li key={condition.name}>
                       <a href="#" className="block hover:bg-indigo-50">
                         <div className="px-4 py-4 sm:px-6">
@@ -140,6 +174,7 @@ export default function HealthEncyclopedia() {
                               <p className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                 condition.severity === 'Mild' ? 'bg-green-100 text-green-800' :
                                 condition.severity === 'Moderate' ? 'bg-yellow-100 text-yellow-800' :
+                                condition.severity === 'Mild to Moderate' ? 'bg-yellow-100 text-yellow-800' :
                                 'bg-red-100 text-red-800'
                               }`}>
                                 {condition.severity}
@@ -149,7 +184,7 @@ export default function HealthEncyclopedia() {
                           <div className="mt-2 sm:flex sm:justify-between">
                             <div className="sm:flex">
                               <p className="flex items-center text-sm text-indigo-500">
-                                {condition.summary}
+                                {condition.category}
                               </p>
                             </div>
                           </div>

@@ -15,13 +15,13 @@ import { SpeedInsights } from "@vercel/speed-insights/react"
 export default function MainPage() {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
-  const [imageType, setImageType] = useState<'rash' | 'eye' | 'nail' | null>(null);
+  const [imageType, setImageType] = useState<'skin' | 'eye' | 'nail' | null>(null);
   const [chatMessages, setChatMessages] = useState<Array<{ text: string; isAI: boolean }>>([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
 
-  const handleImageTypeSelect = (type: 'rash' | 'eye' | 'nail') => {
+  const handleImageTypeSelect = (type: 'skin' | 'eye' | 'nail') => {
     setImageType(type);
     setStep(1);
   };
@@ -43,7 +43,7 @@ export default function MainPage() {
     setTimeout(() => {
       setChatMessages(prev => [...prev, { text: `Based on the ${imageType} image and your description, it appears to be...`, isAI: true }]);
     }, 1000);
-  };
+  }; 
 
   const toggleDropdown = () => {
     setIsDropdownOpen(prev => !prev);

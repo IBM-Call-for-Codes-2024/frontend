@@ -42,7 +42,7 @@ const DoctorFinder: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const markerRef = useRef<mapboxgl.Marker | null>(null)
 
-  const fetchNearbyDoctors = useCallback(async (lat: number, lng: number, specialty: string) => {
+    const fetchNearbyDoctors = useCallback(async (lat: number, lng: number, specialty: string) => {
     setIsLoading(true);
     setError(null);
     console.log('Fetching nearby doctors:', { lat, lng, specialty });
